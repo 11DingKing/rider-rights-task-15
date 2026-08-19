@@ -501,14 +501,7 @@ func (i *Index) ListAudit(ctx context.Context, filter domain.AuditFilter) ([]*do
 		return nil, 0, err
 	}
 
-	pageSize := filter.PageSize
-	if pageSize <= 0 {
-		pageSize = 50
-	}
-	offset := filter.PageOffset
-	if offset < 0 {
-		offset = 0
-	}
+	pageSize, offset := domain.NormalizeAuditPage(filter.PageSize, filter.PageOffset)
 	query := "SELECT " + auditCols + " FROM audit_entries WHERE " + whereClause + " ORDER BY timestamp DESC LIMIT ? OFFSET ?"
 	args = append(args, pageSize, offset)
 	rows, err := i.db.QueryContext(ctx, query, args...)
